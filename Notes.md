@@ -4,9 +4,15 @@
     
     Chessboard 9x6
 
+# Objects used
+
+       Black Box: 16.1 x 16.1 x 5.1 cm side
+
+       Rubick's Cube: 5.6 x 5.6 x 5.6 cm side
+
+       Shoe Box: 23.0 x 34.0 x 12.6 cm side  
 
 ### Intenal calibration values obtained 
-
 
 ret:
 2.436942812539297

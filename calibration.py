@@ -55,3 +55,9 @@ print(tvecs)
 
 # they should be preserved through the program executiion, for external calibration and measures
 # internal values never change, are related to the camera hardware
+
+# external calibration
+
+# Find the rotation and translation vectors. -> with solvePnPRansac using values from before
+#ret,rvecs, tvecs = cv.solvePnP(objp, corners2, mtx, dist)
+# but corners2 should contain the information In simple words, we find the points on image plane corresponding to each of (3,0,0),(0,3,0),(0,0,3) in 3D space.
