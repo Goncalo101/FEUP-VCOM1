@@ -3,8 +3,7 @@ import cv2
 import glob
 
 # termination criteria
-# todo check if this value should be the square size 24 or 30
-criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 24, 0.001)
+criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
 # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
 objp = np.zeros((6*9, 3), np.float32)
@@ -38,20 +37,52 @@ for fname in images:
 
 cv2.destroyAllWindows()
 
-ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(
-    objpoints, imgpoints, gray.shape[::-1], None, None)
+ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
 
 # Values printed just to see them
-print('ret: ')
-print(ret)
-print('mtx: ')
-print(mtx)
-print('dist: ')
-print(dist)
-print('rvecs: ')
-print(rvecs)
-print('tvecs: ')
-print(tvecs)
+#print('ret: ')
+#print(ret)
+#print('mtx: ')
+#print(mtx)
+#print('dist: ')
+#print(dist)
+#print('rvecs: ')
+#print(rvecs)
+#print('tvecs: ')
+#print(tvecs)
+
+mean_error = 0
+for i in range(len(objpoints)):
+    imgpoints2, _ = cv2.projectPoints(objpoints[i], rvecs[i], tvecs[i], mtx, dist)
+    error = cv2.norm(imgpoints[i],imgpoints2, cv2.NORM_L2)/len(imgpoints2)
+    mean_error += error
+
+print("total error: ", mean_error/len(objpoints))
+
+#Undisort
+#
+
+#img = cv2.imread('left12.jpg')
+#h,  w = img.shape[:2]
+#newcameramtx, roi=cv2.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,(w,h))
+
+# undistort
+#dst = cv2.undistort(img, mtx, dist, None, newcameramtx)
+
+# crop the image
+#x,y,w,h = roi
+#dst = dst[y:y+h, x:x+w]
+#cv2.imwrite('calibresult.png',dst)
+
+# undistort
+#mapx,mapy = cv2.initUndistortRectifyMap(mtx,dist,None,newcameramtx,(w,h),5)
+#dst = cv2.remap(img,mapx,mapy,cv2.INTER_LINEAR)
+
+# crop the image
+#x,y,w,h = roi
+#dst = dst[y:y+h, x:x+w]
+#cv2.imwrite('calibresult.png',dst)
+
 
 # they should be preserved through the program executiion, for external calibration and measures
 # internal values never change, are related to the camera hardware
