@@ -2,7 +2,9 @@ import numpy as np
 import cv2
 import glob
 
-# Camera calibration using chess board
+# Camera calibration using chess board 
+
+# Internal Calibration ------------------------------------------------------
 # termination criteria
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
@@ -35,7 +37,7 @@ for fname in images:
         img = cv2.drawChessboardCorners(img, (9, 6), corners2, ret)
         imgResized = cv2.resize(img, (int(img.shape[1] * scale_percent / 100), int(img.shape[0] * scale_percent / 100)))
         cv2.imshow('img', imgResized)
-        cv2.waitKey(500)
+        cv2.waitKey(1)
 
 cv2.destroyAllWindows()
 
@@ -53,7 +55,7 @@ ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.sh
 #print('tvecs: ')
 #print(tvecs)
 
-# Total error calculation
+# Total error calculation -------------------------------------------------------------
 mean_error = 0
 for i in range(len(objpoints)):
     imgpoints2, _ = cv2.projectPoints(objpoints[i], rvecs[i], tvecs[i], mtx, dist)
@@ -64,7 +66,7 @@ print("total error: ", mean_error/len(objpoints))
 
 #Undisort image -------------------------------------------------------------
 
-img = cv2.imread('./assets/images/IMG_0845.JPG')
+img = cv2.imread('./assets/images/b/IMG_0861.JPG')
 h,  w = img.shape[:2]
 newcameramtx, roi = cv2.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,(w,h))
 
@@ -75,7 +77,7 @@ dst = cv2.undistort(img, mtx, dist, None, newcameramtx)
 # crop the image
 x,y,w,h = roi
 dst = dst[y:y+h, x:x+w]
-cv2.imwrite('calibresult.png',dst)
+#cv2.imwrite('calibresult.png',dst)
 
 # Method 2 - curved path
 # undistort
@@ -118,7 +120,6 @@ for fname in glob.glob('assets/images/b/IMG_0861.JPG'):
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
     ret, corners = cv2.findChessboardCorners(gray, (9,6),None)
     if ret == True:
-        print('ola2')
         corners2 = cv2.cornerSubPix(gray,corners,(11,11),(-1,-1),criteria)
         # Find the rotation and translation vectors.
        
@@ -143,6 +144,3 @@ cv2.destroyAllWindows()
 #print(rvecs)
 #print('tvecs: ')
 #print(tvecs)
-
-# Export camera matrix and distortion coefficients
-np.savez()
