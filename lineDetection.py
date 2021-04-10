@@ -12,7 +12,7 @@ imgWithCanny = cv2.Canny(img, 60, 100, None, 3)
 cdst = cv2.cvtColor(imgWithCanny, cv2.COLOR_GRAY2BGR)
 
 # Standard Hough Line Transform
-lines = cv2.HoughLinesP(imgWithCanny, 1, np.pi / 180, 50, None, 50, 10)
+lines = cv2.HoughLinesP(imgWithCanny, 1, np.pi / 180, 50, maxLineGap=50)
 
 # Draw the lines
 if lines is not None:
