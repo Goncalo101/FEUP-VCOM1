@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 import glob
 
+# Camera calibration using chess board
 # termination criteria
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
@@ -14,7 +15,7 @@ objpoints = []  # 3d point in real world space
 imgpoints = []  # 2d points in image plane.
 
 images = glob.glob('assets/internal/*')
-
+scale_percent = 25
 for fname in images:
     img = cv2.imread(fname)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -32,7 +33,8 @@ for fname in images:
 
         # Draw and display the corners
         img = cv2.drawChessboardCorners(img, (9, 6), corners2, ret)
-        cv2.imshow('img', img)
+        imgResized = cv2.resize(img, (int(img.shape[1] * scale_percent / 100), int(img.shape[0] * scale_percent / 100)))
+        cv2.imshow('img', imgResized)
         cv2.waitKey(500)
 
 cv2.destroyAllWindows()
@@ -51,6 +53,7 @@ ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.sh
 #print('tvecs: ')
 #print(tvecs)
 
+# Total error calculation
 mean_error = 0
 for i in range(len(objpoints)):
     imgpoints2, _ = cv2.projectPoints(objpoints[i], rvecs[i], tvecs[i], mtx, dist)
@@ -59,21 +62,22 @@ for i in range(len(objpoints)):
 
 print("total error: ", mean_error/len(objpoints))
 
-#Undisort -------------------------------------------------------------
-#
+#Undisort image -------------------------------------------------------------
 
-#img = cv2.imread('left12.jpg')
-#h,  w = img.shape[:2]
-#newcameramtx, roi=cv2.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,(w,h))
+img = cv2.imread('./assets/images/IMG_0845.JPG')
+h,  w = img.shape[:2]
+newcameramtx, roi = cv2.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,(w,h))
 
+# Method 1 - shortest path
 # undistort
-#dst = cv2.undistort(img, mtx, dist, None, newcameramtx)
+dst = cv2.undistort(img, mtx, dist, None, newcameramtx)
 
 # crop the image
-#x,y,w,h = roi
-#dst = dst[y:y+h, x:x+w]
-#cv2.imwrite('calibresult.png',dst)
+x,y,w,h = roi
+dst = dst[y:y+h, x:x+w]
+cv2.imwrite('calibresult.png',dst)
 
+# Method 2 - curved path
 # undistort
 #mapx,mapy = cv2.initUndistortRectifyMap(mtx,dist,None,newcameramtx,(w,h),5)
 #dst = cv2.remap(img,mapx,mapy,cv2.INTER_LINEAR)
@@ -83,11 +87,10 @@ print("total error: ", mean_error/len(objpoints))
 #dst = dst[y:y+h, x:x+w]
 #cv2.imwrite('calibresult.png',dst)
 
-
-# they should be preserved through the program executiion, for external calibration and measures
+# they should be preserved through the program execution, for external calibration and measures
 # internal values never change, are related to the camera hardware
 
-# external calibration ---------------------------------------------------------------
+# External calibration ---------------------------------------------------------------
 
 # Find the rotation and translation vectors. -> with solvePnPRansac using values from before
 #ret,rvecs, tvecs = cv.solvePnP(objp, corners2, mtx, dist)
@@ -140,3 +143,6 @@ cv2.destroyAllWindows()
 #print(rvecs)
 #print('tvecs: ')
 #print(tvecs)
+
+# Export camera matrix and distortion coefficients
+np.savez()
