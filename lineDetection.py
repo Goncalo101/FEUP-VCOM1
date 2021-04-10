@@ -3,7 +3,7 @@ import numpy as np
 import math
 
 # Opening an image
-img = cv2.imread('./assets/images/b/extra.jpg', cv2.COLOR_BGR2GRAY)
+img = cv2.imread('./assets/images/b/IMG_0869.jpg', cv2.COLOR_BGR2GRAY)
 
 # Using a Canny Filter
 imgWithCanny = cv2.Canny(img, 60, 100, None, 3)
