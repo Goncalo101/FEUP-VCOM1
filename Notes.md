@@ -14,6 +14,8 @@
 
 ### Intenal calibration values obtained 
 
+total error:  0.2638046815940677
+
 ret:
 2.436942812539297
 
