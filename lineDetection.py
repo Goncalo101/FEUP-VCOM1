@@ -14,12 +14,12 @@ imgGrey = cv2.cvtColor(imgOriginal, cv2.COLOR_BGR2GRAY)
 #------------------TESTING ZONE-------------------------------------
 
 # Gaussian Blur
-img = cv2.GaussianBlur(imgGrey,(7,7),0)
+img = cv2.GaussianBlur(imgGrey,(9,9),0)
 
 #-------------------------------------------------------
 
 # Using a Canny Filter
-imgWithCanny = cv2.Canny(imgGrey, 60, 100, None, 3)
+imgWithCanny = cv2.Canny(img, 60, 100, None, 3)
 
 # Copy edges to the images that will display the results in BGR
 cdst = imgOriginal.copy()
@@ -31,10 +31,12 @@ lines = cv2.HoughLinesP(imgWithCanny, 1, np.pi / 180, 50, maxLineGap=50)
 if lines is not None:
     for i in range(0, len(lines)):
         l = lines[i][0]
+        if (l[1] > 600 or l[1] < 300):
+            continue
         cv2.line(cdst, (l[0], l[1]), (l[2], l[3]), (0,255,0), 3, cv2.LINE_AA)
 
 # Print Original Image
-scale_percent = 20
+scale_percent = 50
 #show_image('Img', imgOriginal, scale_percent)
 
 # Print Grey Image
