@@ -9,8 +9,88 @@ def show_image(title, image, scale_percent):
     cv2.imshow(title, imgResized)
 
 # Draw circle
-def draw_circle(image, coordinates):
+def draw_vertex(image, coordinates):
     cv2.circle(image, coordinates, 30, (255,0,0), 20, cv2.LINE_AA)
+
+# Get line limits
+def get_line_limits_x(lines, minX, minY, maxX, maxY):
+    leftMostX = maxX
+    leftMostY = maxY
+    rightMostX = minX
+    rightMostY = minY
+    if lines is not None:
+        for i in range(0, len(lines)):
+            l = lines[i][0]
+            # Specify the area of interest
+            if (l[1] >= maxY or l[1] <= minY or l[3] >= maxY or l[3] <= minY or l[0] >= maxX or l[0] <= minX or l[2] >= maxX or l[2] <= minX):
+                continue
+            # Left most vertex
+            if (l[0] <= leftMostX):
+                leftMostX = l[0]
+                leftMostY = l[1]
+            if (l[2] <= leftMostX):
+                leftMostX = l[2]
+                leftMostY = l[3]
+            # Right most vertex
+            if (l[2] >= rightMostX):
+                rightMostX = l[2]
+                rightMostY = l[3]
+            if (l[0] >= rightMostX):
+                rightMostX = l[0]
+                rightMostY = l[1]
+    return (leftMostX, leftMostY, rightMostX, rightMostY)
+
+def get_bigger(n1, n2):
+    if (n1 > n2):
+        return n1
+    else: return n2
+
+def get_smaller(n1, n2):
+    if (n1 < n2):
+        return n1
+    else: return n2
+
+def line_shadow_plane():
+    # Draw the lines
+    maxY = 2000
+    minY = 900
+    maxX = imgOriginal.shape[1]
+    minX = 0
+    if lines is not None:
+        for i in range(0, len(lines)):
+            l = lines[i][0]
+            # Specify the area of interest
+            if (l[1] > maxY or l[1] < minY or l[3] > maxY or l[3] < minY):
+                continue
+            # Draw line
+            cv2.line(cdst, (l[0], l[1]), (l[2], l[3]), (0,255,0), 5, cv2.LINE_AA)
+
+    # Get points #1 and #2
+    (point1X, point1Y, point2X, point2Y) = get_line_limits_x(lines, minX, minY, maxX, int(round(maxY / 1.2)))
+    # Get points #3 and #4
+    (point3X, point3Y, point4X, point4Y) = get_line_limits_x(lines, minX, get_bigger(point1Y, point2Y), get_smaller(point1X, point2X), int(round(maxY / 1.05)))
+    # Get points #5 and #6
+    (point5X, point5Y, point6X, point6Y) = get_line_limits_x(lines, get_bigger(point1X, point2X), get_bigger(point1Y, point2Y), maxX, maxY)
+    # Get points #7 and #8
+    (point7X, point7Y, point8X, point8Y) = get_line_limits_x(lines, minX, minY, maxX, 1300)
+    # Get points #9 and #10
+    (point9X, point9Y, point10X, point10Y) = get_line_limits_x(lines, get_bigger(point1X, point2X), get_bigger(point5Y, point6Y), maxX, maxY)
+    # Get points #11 and #12
+    (point11X, point11Y, point12X, point12Y) = get_line_limits_x(lines, minX, 1900, get_smaller(point1X, point2X), maxY)
+
+    # Draw important vertices
+    draw_vertex(cdst, (point1X, point1Y))
+    draw_vertex(cdst, (point2X, point2Y))
+    draw_vertex(cdst, (point3X, point3Y))
+    draw_vertex(cdst, (point4X, point4Y))
+    draw_vertex(cdst, (point5X, point5Y))
+    draw_vertex(cdst, (point6X, point6Y))
+    draw_vertex(cdst, (point7X, point7Y))
+    draw_vertex(cdst, (point8X, point8Y))
+    draw_vertex(cdst, (point9X, point9Y))
+    draw_vertex(cdst, (point10X, point10Y))
+    draw_vertex(cdst, (point11X, point11Y))
+    draw_vertex(cdst, (point12X, point12Y))
 
 # Main -----------------------------------------------------------------------------------------------------------------------
 # Opening an image
@@ -36,102 +116,8 @@ cdst = imgOriginal.copy()
 # Probabilistic Hough Line Transform
 lines = cv2.HoughLinesP(imgErode, 1, np.pi / 180, 50, minLineLength=85, maxLineGap=50)
 
-# Draw the lines
-leftMostLeftShadowY, leftMostLeftShadowX = imgOriginal.shape[:2]
-rightMostLeftShadowX, rightMostLeftShadowY = (0,0)
-
-leftMostRightShadowY, leftMostRightShadowX = imgOriginal.shape[:2]
-rightMostRightShadowX, rightMostRightShadowY = (0,0)
-
-upLeftMostY, upLeftMostX = imgOriginal.shape[:2]
-upRightMostX, upRightMostY = (0,0)
-
-counter = 0
-
-if lines is not None:
-    #draw lines on the image 
-    for i in range(0, len(lines)):
-        l = lines[i][0]
-        # Specify the area of interest
-        if (l[1] > 2000 or l[1] < 900 or l[3] > 2000 or l[3] < 900):
-            continue
-        # Draw line
-        counter = counter + 1
-        cv2.line(cdst, (l[0], l[1]), (l[2], l[3]), (0,255,0), 5, cv2.LINE_AA)
-    #get points on the upmost line left shadow
-    for i in range(0, len(lines)):
-        l = lines[i][0]
-        # Specify the area of interest
-        if (l[1] > 1900 or l[1] < 1600 or l[3] > 1900 or l[3] < 1600 and l[0] > 1200 or l[2] > 1200 ):
-            continue
-         # Left most vertex
-        if (l[0] < leftMostLeftShadowX):
-            leftMostLeftShadowX = l[0]
-            leftMostLeftShadowY = l[1]
-        if (l[2] < leftMostLeftShadowX):
-            leftMostLeftShadowX = l[2]
-            leftMostLeftShadowY = l[3]
-        # Right most vertex
-        if (l[2] > rightMostLeftShadowX):
-            rightMostLeftShadowX = l[2]
-            rightMostLeftShadowY = l[1]
-        if (l[0] > rightMostLeftShadowX):
-            rightMostLeftShadowX = l[0]
-            rightMostLeftShadowY = l[3]
-
-    #get points on the upmostline right shadow
-    for i in range(0, len(lines)):
-        l = lines[i][0]
-        # Specify the area of interest
-        if (l[1] > 1900 or l[1] < 1600 or l[3] > 1900 or l[3] < 1600 and l[0] < 1200 or l[2] < 1200 ):
-            continue
-          # Left most vertex
-        if (l[0] < leftMostRightShadowX):
-            leftMostRightShadowX = l[0]
-            leftMostRightShadowY = l[1]
-        if (l[2] < leftMostRightShadowX):
-            leftMostRightShadowX = l[2]
-            leftMostRightShadowY = l[3]
-        # Right most vertex
-        if (l[2] > rightMostRightShadowX):
-            rightMostRightShadowX = l[2]
-            rightMostRightShadowY = l[1]
-        if (l[0] > rightMostRightShadowX):
-            rightMostRightShadowX = l[0]
-            rightMostRightShadowY = l[3]
-    #get points on the upmostline top shadow 
-    for i in range(0, len(lines)):
-        l = lines[i][0]
-        # Specify the area of interest
-        if (l[1] > 1300 or l[1] < 900 or l[3] > 1300 or l[3] < 900):
-            continue
-         # Up Left most vertex
-        if (l[0] < upLeftMostX and l[1] <= upLeftMostY):
-            upLeftMostX = l[0]
-            upLeftMostY = l[1]
-        if (l[2] < upLeftMostX and l[3] <= upLeftMostY):
-            upLeftMostX = l[2]
-            upLeftMostY = l[3]
-        # Right most vertex
-        if (l[2] > upRightMostX):
-            upRightMostX = l[2]
-            upRightMostY = l[1]
-        if (l[0] > upRightMostX):
-            upRightMostX = l[0]
-            upRightMostY = l[3]
-    
-# Draw important vertices
-print(counter)
-
-draw_circle(cdst, (leftMostLeftShadowX, leftMostLeftShadowY))
-draw_circle(cdst, (rightMostLeftShadowX, rightMostLeftShadowY))
-
-draw_circle(cdst, (leftMostRightShadowX, leftMostRightShadowY))
-draw_circle(cdst, (rightMostRightShadowX, rightMostRightShadowY))
-
-draw_circle(cdst, (upLeftMostX, upLeftMostY))
-draw_circle(cdst, (upRightMostX, upRightMostY))
-
+# Shadow
+line_shadow_plane()
 
 # Print Original Image
 scale_percent = 20
@@ -151,7 +137,7 @@ scale_percent2 = 10
 #show_image('Img Dilate', imgDilate, scale_percent)
 
 # Print Erode Image
-show_image('Img Erode', imgErode, scale_percent)
+#show_image('Img Erode', imgErode, scale_percent)
 
 # Print Final Image
 show_image('Detected Lines (in green) - Standard Hough Line Transform', cdst, scale_percent)
