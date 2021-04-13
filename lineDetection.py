@@ -37,46 +37,101 @@ cdst = imgOriginal.copy()
 lines = cv2.HoughLinesP(imgErode, 1, np.pi / 180, 50, minLineLength=85, maxLineGap=50)
 
 # Draw the lines
-leftMostX, leftMostY = imgOriginal.shape[:2]
-rightMostX, rightMostY = (0,0)
-upLeftMostX, upLeftMostY = imgOriginal.shape[:2]
+leftMostLeftShadowY, leftMostLeftShadowX = imgOriginal.shape[:2]
+rightMostLeftShadowX, rightMostLeftShadowY = (0,0)
+
+leftMostRightShadowY, leftMostRightShadowX = imgOriginal.shape[:2]
+rightMostRightShadowX, rightMostRightShadowY = (0,0)
+
+upLeftMostY, upLeftMostX = imgOriginal.shape[:2]
+upRightMostX, upRightMostY = (0,0)
+
 counter = 0
+
 if lines is not None:
+    #draw lines on the image 
     for i in range(0, len(lines)):
         l = lines[i][0]
         # Specify the area of interest
         if (l[1] > 2000 or l[1] < 900 or l[3] > 2000 or l[3] < 900):
             continue
-        # Left most vertex
-        if (l[0] < leftMostX):
-            leftMostX = l[0]
-            leftMostY = l[1]
-        if (l[2] < leftMostX):
-            leftMostX = l[2]
-            leftMostY = l[3]
+        # Draw line
+        counter = counter + 1
+        cv2.line(cdst, (l[0], l[1]), (l[2], l[3]), (0,255,0), 5, cv2.LINE_AA)
+    #get points on the upmost line left shadow
+    for i in range(0, len(lines)):
+        l = lines[i][0]
+        # Specify the area of interest
+        if (l[1] > 1900 or l[1] < 1600 or l[3] > 1900 or l[3] < 1600 and l[0] > 1200 or l[2] > 1200 ):
+            continue
+         # Left most vertex
+        if (l[0] < leftMostLeftShadowX):
+            leftMostLeftShadowX = l[0]
+            leftMostLeftShadowY = l[1]
+        if (l[2] < leftMostLeftShadowX):
+            leftMostLeftShadowX = l[2]
+            leftMostLeftShadowY = l[3]
         # Right most vertex
-        if (l[2] > rightMostX):
-            rightMostX = l[2]
-            rightMostY = l[1]
-        if (l[0] > rightMostX):
-            rightMostX = l[0]
-            rightMostY = l[3]
-        # Up Left most vertex
+        if (l[2] > rightMostLeftShadowX):
+            rightMostLeftShadowX = l[2]
+            rightMostLeftShadowY = l[1]
+        if (l[0] > rightMostLeftShadowX):
+            rightMostLeftShadowX = l[0]
+            rightMostLeftShadowY = l[3]
+
+    #get points on the upmostline right shadow
+    for i in range(0, len(lines)):
+        l = lines[i][0]
+        # Specify the area of interest
+        if (l[1] > 1900 or l[1] < 1600 or l[3] > 1900 or l[3] < 1600 and l[0] < 1200 or l[2] < 1200 ):
+            continue
+          # Left most vertex
+        if (l[0] < leftMostRightShadowX):
+            leftMostRightShadowX = l[0]
+            leftMostRightShadowY = l[1]
+        if (l[2] < leftMostRightShadowX):
+            leftMostRightShadowX = l[2]
+            leftMostRightShadowY = l[3]
+        # Right most vertex
+        if (l[2] > rightMostRightShadowX):
+            rightMostRightShadowX = l[2]
+            rightMostRightShadowY = l[1]
+        if (l[0] > rightMostRightShadowX):
+            rightMostRightShadowX = l[0]
+            rightMostRightShadowY = l[3]
+    #get points on the upmostline top shadow 
+    for i in range(0, len(lines)):
+        l = lines[i][0]
+        # Specify the area of interest
+        if (l[1] > 1300 or l[1] < 900 or l[3] > 1300 or l[3] < 900):
+            continue
+         # Up Left most vertex
         if (l[0] < upLeftMostX and l[1] <= upLeftMostY):
             upLeftMostX = l[0]
             upLeftMostY = l[1]
         if (l[2] < upLeftMostX and l[3] <= upLeftMostY):
             upLeftMostX = l[2]
             upLeftMostY = l[3]
-        # Draw line
-        counter = counter + 1
-        cv2.line(cdst, (l[0], l[1]), (l[2], l[3]), (0,255,0), 5, cv2.LINE_AA)
-
+        # Right most vertex
+        if (l[2] > upRightMostX):
+            upRightMostX = l[2]
+            upRightMostY = l[1]
+        if (l[0] > upRightMostX):
+            upRightMostX = l[0]
+            upRightMostY = l[3]
+    
 # Draw important vertices
 print(counter)
-draw_circle(cdst, (leftMostX, leftMostY))
-draw_circle(cdst, (rightMostX, rightMostY))
+
+draw_circle(cdst, (leftMostLeftShadowX, leftMostLeftShadowY))
+draw_circle(cdst, (rightMostLeftShadowX, rightMostLeftShadowY))
+
+draw_circle(cdst, (leftMostRightShadowX, leftMostRightShadowY))
+draw_circle(cdst, (rightMostRightShadowX, rightMostRightShadowY))
+
 draw_circle(cdst, (upLeftMostX, upLeftMostY))
+draw_circle(cdst, (upRightMostX, upRightMostY))
+
 
 # Print Original Image
 scale_percent = 20
