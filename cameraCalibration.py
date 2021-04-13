@@ -66,7 +66,7 @@ print("total error: ", mean_error/len(objpoints))
 
 #Undisort image -------------------------------------------------------------
 
-img = cv2.imread('./assets/images/b/IMG_0861.JPG')
+img = cv2.imread('./assets/images/i/IMG_0927.JPG')
 h,  w = img.shape[:2]
 newcameramtx, roi = cv2.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,(w,h))
 
@@ -115,7 +115,7 @@ objp[:, :2] = np.mgrid[0:9, 0:6].T.reshape(-1, 2)
 
 axis = np.float32([[3,0,0], [0,3,0], [0,0,-3]]).reshape(-1,3)
 
-for fname in glob.glob('assets/images/b/IMG_0861.JPG'):
+for fname in glob.glob('assets/images/i/IMG_0927.JPG'):
     img = cv2.imread(fname)
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
     ret, corners = cv2.findChessboardCorners(gray, (9,6),None)
