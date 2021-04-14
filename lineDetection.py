@@ -11,6 +11,9 @@ def show_image(title, image, scale_percent):
 # Draw circle
 def draw_vertex(image, coordinates):
     cv2.circle(image, coordinates, 30, (255,0,0), 20, cv2.LINE_AA)
+    x = coordinates[0] + 100
+    y = coordinates[1]
+    cv2.putText(image, "(" + str(coordinates) + ")", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 3, (255,255,0), 3)
 
 # Get line limits
 def get_line_limits_x(lines, minX, minY, maxX, maxY):
