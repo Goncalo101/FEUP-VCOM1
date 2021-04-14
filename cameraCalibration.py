@@ -144,7 +144,7 @@ for fname in glob.glob('assets/images/i/IMG_0927.JPG'):
 cv2.destroyAllWindows()
 
 
-#Reprojection Error ------------------------------------------------------------- ????
+#Reprojection Error -------------------------------------------------------------
 mean_error = 0
 for i in range(len(objpoints)):
     imgpoints2, _ = cv2.projectPoints(objpoints[i], rvecs, tvecs, mtx, dist)
@@ -162,9 +162,6 @@ RT = np.column_stack((R, tvecs))
 #Projectioin Matrix
 P = np.matmul(mtx,RT)
 
-print(P)
+np.savez("matrix.npz", P)
 
-#with the points (i,J)
-#(P[3][1]*i-P[1][1])*x+(P[3][2]*i-P[1][2])*y+(P[3][3]*i-P[1][3])*z = P[1][4]-P[3][4]*i
-#(P[3][1]*i-P[2][1])*x+(P[2][2]*i-P[1][2])*y+(P[3][3]*i-P[2][3])*z = P[2][4]-P[3][4]*j
-#A*x+B*y+C*z=D
+print(P)
