@@ -9,13 +9,15 @@ def show_image(title, image, scale_percent):
     cv2.imshow(title, imgResized)
 
 # Draw circle
-def draw_vertex(image, place, coordinates):
+def draw_vertex(image, place, plane):
     cv2.circle(image, place, 30, (255,0,0), 20, cv2.LINE_AA)
     x = place[0] + 100
     y = place[1]
+    coordinates = get_3D_coordinates(place, "matrix.npz", plane)
     draw_coordinates(image, (x,y), coordinates)
 
 def draw_coordinates(image, place, coordinates):
+    print(coordinates)
     cv2.putText(image, str(coordinates), place, cv2.FONT_HERSHEY_SIMPLEX, 3, (255,255,0), 3)
 
 # Get line limits
@@ -85,18 +87,18 @@ def line_shadow_plane():
     (point11X, point11Y, point12X, point12Y) = get_line_limits_x(lines, minX, 1900, get_smaller(point1X, point2X), maxY)
 
     # Draw important vertices
-    #draw_vertex(cdst, (point1X, point1Y), get_3D_coordinates((point1X, point1Y), "matrix.npz", (0, 0, 1, 0)))
-    #draw_vertex(cdst, (point2X, point2Y), get_3D_coordinates((point2X, point2Y), "matrix.npz", (0, 0, 1, 0)))
-    #draw_vertex(cdst, (point3X, point3Y), get_3D_coordinates((point3X, point3Y), "matrix.npz", (0, 0, 1, 0)))
-    draw_vertex(cdst, (point4X, point4Y), get_3D_coordinates((point4X, point4Y), "matrix.npz", (0, 0, 1, 0)))
-    draw_vertex(cdst, (point5X, point5Y), get_3D_coordinates((point5X, point5Y), "matrix.npz", (0, 0, 1, 0)))
-    #draw_vertex(cdst, (point6X, point6Y), get_3D_coordinates((point6X, point6Y), "matrix.npz", (0, 0, 1, 0)))
-    #draw_vertex(cdst, (point7X, point7Y), get_3D_coordinates((point7X, point7Y), "matrix.npz", (0, 0, 1, 0)))
-    #draw_vertex(cdst, (point8X, point8Y), get_3D_coordinates((point8X, point8Y), "matrix.npz", (0, 0, 1, 0)))
-    #draw_vertex(cdst, (point9X, point9Y), get_3D_coordinates((point9X, point9Y), "matrix.npz", (0, 0, 1, 0)))
-    #draw_vertex(cdst, (point10X, point10Y), get_3D_coordinates((point10X, point10Y), "matrix.npz", (0, 0, 1, 0)))
-    #draw_vertex(cdst, (point11X, point11Y), get_3D_coordinates((point11X, point11Y), "matrix.npz", (0, 0, 1, 0)))
-    #draw_vertex(cdst, (point12X, point12Y), get_3D_coordinates((point12X, point12Y), "matrix.npz", (0, 0, 1, 0)))
+    draw_vertex(cdst, (point1X, point1Y), (0, 1, 0, 0))
+    #draw_vertex(cdst, (point2X, point2Y), (0, 1, 0, 0))
+    #draw_vertex(cdst, (point3X, point3Y), (0, 1, 0, 0))
+    draw_vertex(cdst, (point4X, point4Y), (0, 1, 0, 0))
+    draw_vertex(cdst, (point5X, point5Y), (0, 1, 0, 0))
+    #draw_vertex(cdst, (point6X, point6Y), (0, 1, 0, 0))
+    #draw_vertex(cdst, (point7X, point7Y), (0, 1, 0, 0))
+    #draw_vertex(cdst, (point8X, point8Y), (0, 1, 0, 0))
+    #draw_vertex(cdst, (point9X, point9Y), (0, 1, 0, 0))
+    #draw_vertex(cdst, (point10X, point10Y), (0, 1, 0, 0))
+    #draw_vertex(cdst, (point11X, point11Y), (0, 1, 0, 0))
+    #draw_vertex(cdst, (point12X, point12Y), (0, 1, 0, 0))
 
 def get_3D_coordinates(vertex, matrix, plane):
     npzfile = np.load(matrix)
@@ -107,32 +109,17 @@ def get_3D_coordinates(vertex, matrix, plane):
     D = plane[3]
     i = vertex[0]
     j = vertex[1]
-
+    
     x = -((B*(P[2][2]*i - P[1][2]) - C*(i*P[1][1] - P[0][1]))*(-C*(P[2][3]*i - P[0][3]) - D*(P[2][2]*i - P[0][2])) - (B*(P[2][2]*i - P[0][2]) - C*(P[2][1]*i - P[0][1]))*(-C*(P[2][3]*j - P[1][3]) - D*(P[2][2]*i - P[1][2])))/((A*(P[2][2]*i - P[0][2]) - C*(P[2][0]*i - P[0][0]))*(B*(P[2][2]*i - P[1][2]) - C*(i*P[1][1] - P[0][1])) - (A*(P[2][2]*i - P[1][2]) - C*(P[2][0]*i - P[1][0]))*(B*(P[2][2]*i - P[0][2]) - C*(P[2][1]*i - P[0][1])))
     y = -(P[2][0]*C*P[0][3]*i - P[2][0]*C*P[2][3]*i*i + P[2][0]*C*P[2][3]*i*j - P[2][0]*C*i*P[1][3] + P[2][0]*D*P[0][2]*i - P[2][0]*D*i*P[1][2] - A*P[2][2]*P[0][3]*i + A*P[2][2]*P[2][3]*i*i - A*P[2][2]*P[2][3]*i*j + A*P[2][2]*i*P[1][3] + A*P[0][2]*P[2][3]*j - A*P[0][2]*P[1][3] + A*P[0][3]*P[1][2] - A*P[2][3]*i*P[1][2] - P[0][0]*C*P[2][3]*j + P[0][0]*C*P[1][3] - P[0][0]*D*P[2][2]*i + P[0][0]*D*P[1][2] - C*P[0][3]*P[1][0] + C*P[2][3]*i*P[1][0] + D*P[2][2]*i*P[1][0] - D*P[0][2]*P[1][0])/(-P[2][0]*B*P[0][2]*i + P[2][0]*B*i*P[1][2] - P[2][0]*P[2][1]*C*i*i + P[2][0]*C*i*i*P[1][1] + A*P[2][1]*P[2][2]*i*i - A*P[2][1]*i*P[1][2] - A*P[0][1]*P[0][2] + A*P[0][1]*P[1][2] - A*P[2][2]*i*i*P[1][1] + A*P[0][2]*i*P[1][1] + P[0][0]*B*P[2][2]*i - P[0][0]*B*P[1][2] + P[0][0]*C*P[0][1] - P[0][0]*C*i*P[1][1] - B*P[2][2]*i*P[1][0] + B*P[0][2]*P[1][0] + P[2][1]*C*i*P[1][0] - C*P[0][1]*P[1][0])
     z = -(-P[2][0]*B*P[0][3]*i + P[2][0]*B*P[2][3]*i*i - P[2][0]*B*P[2][3]*i*j + P[2][0]*B*i*P[1][3] + P[2][0]*P[2][1]*D*i*i - P[2][0]*D*i*i*P[1][1] + A*P[2][1]*P[2][3]*i*j - A*P[2][1]*i*P[1][3] - A*P[0][1]*P[0][3] + A*P[0][1]*P[2][3]*i - A*P[0][1]*P[2][3]*j + A*P[0][1]*P[1][3] + A*P[0][3]*i*P[1][1] - A*P[2][3]*i*i*P[1][1] + P[0][0]*B*P[2][3]*j - P[0][0]*B*P[1][3] - P[0][0]*P[0][1]*D + P[0][0]*D*i*P[1][1] + B*P[0][3]*P[1][0] - B*P[2][3]*i*P[1][0] - P[2][1]*D*i*P[1][0] + P[0][1]*D*P[1][0])/(-P[2][0]*B*P[0][2]*i + P[2][0]*B*i*P[1][2] - P[2][0]*P[2][1]*C*i*i + P[2][0]*C*i*i*P[1][1] + A*P[2][1]*P[2][2]*i*i - A*P[2][1]*i*P[1][2] - A*P[0][1]*P[0][2] + A*P[0][1]*P[1][2] - A*P[2][2]*i*i*P[1][1] + A*P[0][2]*i*P[1][1] + P[0][0]*B*P[2][2]*i - P[0][0]*B*P[1][2] + P[0][0]*C*P[0][1] - P[0][0]*C*i*P[1][1] - B*P[2][2]*i*P[1][0] + B*P[0][2]*P[1][0] + P[2][1]*C*i*P[1][0] - C*P[0][1]*P[1][0])
-
+    
     decimal = 4
     return (round(x, decimal), round(y, decimal), round(z, decimal))
     #with the points (i,J)
     #(P[3][1]*i-P[1][1])*x+(P[3][2]*i-P[1][2])*y+(P[3][3]*i-P[1][3])*z = P[1][4]-P[3][4]*i
     #(P[3][1]*i-P[2][1])*x+(P[2][2]*i-P[1][2])*y+(P[3][3]*i-P[2][3])*z = P[2][4]-P[3][4]*j
     #A*x+B*y+C*z=D
-    #assuming z=0
-    #(P[3][1]*i-P[1][1])*x+(P[3][2]*i-P[1][2])*y = P[1][4]-P[3][4]*i
-    #(P[3][1]*i-P[2][1])*x+(P[2][2]*i-P[1][2])*y = P[2][4]-P[3][4]*j
-    #
-    #(P[3][2]*i-P[1][2])*y = P[1][4]-P[3][4]*i - (P[3][1]*i-P[1][1])*x
-    #(P[2][2]*i-P[1][2])*y = P[2][4]-P[3][4]*j - (P[3][1]*i-P[2][1])*x
-    #
-    #y = (P[1][4]-P[3][4]*i - (P[3][1]*i-P[1][1])*x) / (P[3][2]*i-P[1][2])
-    #y = (P[2][4]-P[3][4]*j - (P[3][1]*i-P[2][1])*x) / (P[2][2]*i-P[1][2])
-    #
-    #(P[2][4]-P[3][4]*j - (P[3][1]*i-P[2][1])*x) / (P[2][2]*i-P[1][2]) = (P[1][4]-P[3][4]*i - (P[3][1]*i-P[1][1])*x) / (P[3][2]*i-P[1][2])
-    #(P[2][4]-P[3][4]*j - P[3][1]*i*x-P[2][1]*x) / (P[2][2]*i-P[1][2]) = (P[1][4]-P[3][4]*i - P[3][1]*i*x-P[1][1]*x) / (P[3][2]*i-P[1][2])
-    #(P[2][4]-P[3][4]*j - P[3][1]*i*x-P[2][1]*x) * (P[3][2]*i-P[1][2]) = (P[1][4]-P[3][4]*i - P[3][1]*i*x-P[1][1]*x) * (P[2][2]*i-P[1][2])
-    #
-    #(P[2][4]-P[3][4]*j - P[3][1]*i*x-P[2][1]*x) / (P[1][4]-P[3][4]*i - P[3][1]*i*x-P[1][1]*x) = (P[2][2]*i-P[1][2]) / (P[3][2]*i-P[1][2])
     
 
 # Main -----------------------------------------------------------------------------------------------------------------------
