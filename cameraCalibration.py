@@ -10,7 +10,7 @@ criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
 # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
 objp = np.zeros((6*9, 3), np.float32)
-objp[:, :2] = np.mgrid[0:9, 0:6].T.reshape(-1, 2)
+objp[:, :2] = np.mgrid[0:9, 0:6].T.reshape(-1, 2)*2.44
 
 # Arrays to store object points and image points from all the images.
 objpoints = []  # 3d point in real world space
@@ -101,9 +101,9 @@ print("total error: ", mean_error/len(objpoints))
 #funtion to draw the axis on the chessboard
 def draw(img, corners, imgpts):
     corner = tuple(corners[0].ravel())
-    img = cv2.line(img, corner, tuple(imgpts[0].ravel()), (255,0,0), 5)
-    img = cv2.line(img, corner, tuple(imgpts[1].ravel()), (0,255,0), 5)
-    img = cv2.line(img, corner, tuple(imgpts[2].ravel()), (0,0,255), 5)
+    img = cv2.line(img, corner, tuple(imgpts[0].ravel()), (255,0,0), 5) # B -> X
+    img = cv2.line(img, corner, tuple(imgpts[1].ravel()), (0,255,0), 5) # G -> Y
+    img = cv2.line(img, corner, tuple(imgpts[2].ravel()), (0,0,255), 5) # R -> Z
     return img
 
 # termination criteria
@@ -111,7 +111,7 @@ criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
 # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
 objp = np.zeros((6*9, 3), np.float32)
-objp[:, :2] = np.mgrid[0:9, 0:6].T.reshape(-1, 2)
+objp[:, :2] = np.mgrid[0:9, 0:6].T.reshape(-1, 2)*2.44
 
 objpoints = []  # 3d point in real world space
 imgpoints = []  # 2d points in image plane.
