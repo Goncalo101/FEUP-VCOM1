@@ -91,19 +91,36 @@ def line_shadow_plane():
 
     # Draw important vertices
     matrix = "matrix.npz"
-    plane = (0, 1, 0, 0)
-    draw_vertex(cdst, point1, get_3D_coordinates(point1, matrix, plane))
-    draw_vertex(cdst, point2, get_3D_coordinates(point2, matrix, plane))
-    draw_vertex(cdst, point3, get_3D_coordinates(point3, matrix, plane))
-    draw_vertex(cdst, point4, get_3D_coordinates(point4, matrix, plane))
-    draw_vertex(cdst, point5, get_3D_coordinates(point5, matrix, plane))
-    draw_vertex(cdst, point6, get_3D_coordinates(point6, matrix, plane))
-    draw_vertex(cdst, point7, get_3D_coordinates(point7, matrix, plane))
-    draw_vertex(cdst, point8, get_3D_coordinates(point8, matrix, plane))
-    draw_vertex(cdst, point9, get_3D_coordinates(point9, matrix, plane))
-    draw_vertex(cdst, point10, get_3D_coordinates(point10, matrix, plane))
-    draw_vertex(cdst, point11, get_3D_coordinates(point11, matrix, plane))
-    draw_vertex(cdst, point12, get_3D_coordinates(point12, matrix, plane))
+    plane = (0, 1, 0, 0) # plane y = 0
+    point1Coordinates = get_3D_coordinates(point1, matrix, plane)
+    draw_vertex(cdst, point1, point1Coordinates)
+    point2Coordinates = get_3D_coordinates(point2, matrix, plane)
+    draw_vertex(cdst, point2, point2Coordinates)
+
+    point9Coordinates = get_3D_coordinates(point9, matrix, plane)
+    draw_vertex(cdst, point9, point9Coordinates)
+    point10Coordinates = get_3D_coordinates(point10, matrix, plane)
+    draw_vertex(cdst, point10, point10Coordinates)
+
+    point11Coordinates = get_3D_coordinates(point11, matrix, plane)
+    draw_vertex(cdst, point11, point11Coordinates)
+    point12Coordinates = get_3D_coordinates(point12, matrix, plane)
+    draw_vertex(cdst, point12, point12Coordinates)
+
+    point3Coordinates = get_3D_coordinates(point3, matrix, (0,0,1,point11Coordinates[2]))
+    draw_vertex(cdst, point3, point3Coordinates)
+    point4Coordinates = get_3D_coordinates(point4, matrix, (0,0,1,point12Coordinates[2]))
+    draw_vertex(cdst, point4, point4Coordinates)
+
+    point5Coordinates = get_3D_coordinates(point5, matrix, (0,0,1,point9Coordinates[2]))
+    draw_vertex(cdst, point5, point5Coordinates)
+    point6Coordinates = get_3D_coordinates(point6, matrix, (0,0,1,point10Coordinates[2]))
+    draw_vertex(cdst, point6, point6Coordinates)
+
+    point7Coordinates = get_3D_coordinates(point7, matrix, (0,0,1,point1Coordinates[2]))
+    draw_vertex(cdst, point7, point7Coordinates)
+    point8Coordinates = get_3D_coordinates(point8, matrix, (0,0,1,point2Coordinates[2]))
+    draw_vertex(cdst, point8, point8Coordinates)
 
 # Get 3D coordinates from a 2D vertex, a matrix and a plane in which the vertex is
 def get_3D_coordinates(vertex, matrix, plane):

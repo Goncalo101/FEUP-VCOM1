@@ -66,7 +66,7 @@ print("total error: ", mean_error/len(objpoints))
 
 #Undisort image -------------------------------------------------------------
 
-#img = cv2.imread('./assets/images/i/IMG_0927.JPG')
+#img = cv2.imread('./assets/images/i/IMG_0922.JPG')
 #h,  w = img.shape[:2]
 #newcameramtx, roi = cv2.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,(w,h))
 
@@ -77,7 +77,7 @@ print("total error: ", mean_error/len(objpoints))
 # crop the image
 #x,y,w,h = roi
 #dst = dst[y:y+h, x:x+w]
-#cv2.imwrite('calibresult.png',dst)
+#cv2.imwrite('./assets/images/i/calibresult.png',dst)
 
 # Method 2 - curved path
 # undistort
