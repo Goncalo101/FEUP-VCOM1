@@ -3,21 +3,21 @@ import numpy as np
 import math
 
 # Auxiliary functions ------------------------------------------------------------------------------------------------------
+
 # Print image
 def show_image(title, image, scale_percent):
     imgResized = cv2.resize(image, (int(image.shape[1] * scale_percent / 100), int(image.shape[0] * scale_percent / 100)))
     cv2.imshow(title, imgResized)
 
-# Draw circle
-def draw_vertex(image, place, plane):
-    cv2.circle(image, place, 30, (255,0,0), 20, cv2.LINE_AA)
-    x = place[0] + 100
-    y = place[1]
-    coordinates = get_3D_coordinates(place, "matrix.npz", plane)
-    draw_coordinates(image, (x,y), coordinates)
+# Draw vertex
+def draw_vertex(image, place2D, place3D):
+    cv2.circle(image, place2D, 30, (255,0,0), 20, cv2.LINE_AA)
+    x = place2D[0] + 100
+    y = place2D[1]
+    draw_coordinates(image, (x,y), place3D)
 
+# Draw coordinates
 def draw_coordinates(image, place, coordinates):
-    print(coordinates)
     cv2.putText(image, str(coordinates), place, cv2.FONT_HERSHEY_SIMPLEX, 3, (255,255,0), 3)
 
 # Get line limits
@@ -48,16 +48,19 @@ def get_line_limits_x(lines, minX, minY, maxX, maxY):
                 rightMostY = l[1]
     return (leftMostX, leftMostY, rightMostX, rightMostY)
 
+# Get bigger between two numbers
 def get_bigger(n1, n2):
     if (n1 > n2):
         return n1
     else: return n2
 
+# Get smaller between two numbers
 def get_smaller(n1, n2):
     if (n1 < n2):
         return n1
     else: return n2
 
+# Handle shadow lines and vertices
 def line_shadow_plane():
     # Draw the lines
     maxY = 2000
@@ -87,20 +90,27 @@ def line_shadow_plane():
     (point11X, point11Y, point12X, point12Y) = get_line_limits_x(lines, minX, 1900, get_smaller(point1X, point2X), maxY)
 
     # Draw important vertices
-    draw_vertex(cdst, (point1X, point1Y), (0, 1, 0, 0))
-    #draw_vertex(cdst, (point2X, point2Y), (0, 1, 0, 0))
-    #draw_vertex(cdst, (point3X, point3Y), (0, 1, 0, 0))
-    draw_vertex(cdst, (point4X, point4Y), (0, 1, 0, 0))
-    draw_vertex(cdst, (point5X, point5Y), (0, 1, 0, 0))
-    #draw_vertex(cdst, (point6X, point6Y), (0, 1, 0, 0))
-    #draw_vertex(cdst, (point7X, point7Y), (0, 1, 0, 0))
-    #draw_vertex(cdst, (point8X, point8Y), (0, 1, 0, 0))
-    #draw_vertex(cdst, (point9X, point9Y), (0, 1, 0, 0))
-    #draw_vertex(cdst, (point10X, point10Y), (0, 1, 0, 0))
-    #draw_vertex(cdst, (point11X, point11Y), (0, 1, 0, 0))
-    #draw_vertex(cdst, (point12X, point12Y), (0, 1, 0, 0))
+    matrix = "matrix.npz"
+    #draw_vertex(cdst, (point1X, point1Y), get_3D_coordinates((point1X, point1Y), matrix, (0, 0, 1, 0)))
+    #draw_vertex(cdst, (point2X, point2Y), get_3D_coordinates((point2X, point2Y), matrix, (0, 0, 1, 0)))
+    draw_vertex(cdst, (point3X, point3Y), get_3D_coordinates((point3X, point3Y), matrix, (0, 0, 1, 0)))
+    draw_vertex(cdst, (point4X, point4Y), get_3D_coordinates((point4X, point4Y), matrix, (0, 0, 1, 0)))
+    draw_vertex(cdst, (point5X, point5Y), get_3D_coordinates((point5X, point5Y), matrix, (0, 0, 1, 0)))
+    draw_vertex(cdst, (point6X, point6Y), get_3D_coordinates((point6X, point6Y), matrix, (0, 0, 1, 0)))
+    #draw_vertex(cdst, (point7X, point7Y), get_3D_coordinates((point7X, point7Y), matrix, (0, 0, 1, 0)))
+    #draw_vertex(cdst, (point8X, point8Y), get_3D_coordinates((point8X, point8Y), matrix, (0, 0, 1, 0)))
+    draw_vertex(cdst, (point9X, point9Y), get_3D_coordinates((point9X, point9Y), matrix, (0, 0, 1, 0)))
+    draw_vertex(cdst, (point10X, point10Y), get_3D_coordinates((point10X, point10Y), matrix, (0, 0, 1, 0)))
+    draw_vertex(cdst, (point11X, point11Y), get_3D_coordinates((point11X, point11Y), matrix, (0, 0, 1, 0)))
+    draw_vertex(cdst, (point12X, point12Y), get_3D_coordinates((point12X, point12Y), matrix, (0, 0, 1, 0)))
 
+# Get 3D coordinates from a 2D vertex, a matrix and a plane in which the vertex is
 def get_3D_coordinates(vertex, matrix, plane):
+    #with the points (i,J)
+    #(P[3][1]*i-P[1][1])*x+(P[3][2]*i-P[1][2])*y+(P[3][3]*i-P[1][3])*z = P[1][4]-P[3][4]*i
+    #(P[3][1]*i-P[2][1])*x+(P[2][2]*i-P[1][2])*y+(P[3][3]*i-P[2][3])*z = P[2][4]-P[3][4]*j
+    #A*x+B*y+C*z=D
+
     npzfile = np.load(matrix)
     P = npzfile['arr_0']
     A = plane[0]
@@ -116,13 +126,10 @@ def get_3D_coordinates(vertex, matrix, plane):
     
     decimal = 4
     return (round(x, decimal), round(y, decimal), round(z, decimal))
-    #with the points (i,J)
-    #(P[3][1]*i-P[1][1])*x+(P[3][2]*i-P[1][2])*y+(P[3][3]*i-P[1][3])*z = P[1][4]-P[3][4]*i
-    #(P[3][1]*i-P[2][1])*x+(P[2][2]*i-P[1][2])*y+(P[3][3]*i-P[2][3])*z = P[2][4]-P[3][4]*j
-    #A*x+B*y+C*z=D
     
 
 # Main -----------------------------------------------------------------------------------------------------------------------
+
 # Opening an image
 imgOriginal = cv2.imread('./assets/images/i/IMG_0922.JPG')
 imgGrey = cv2.cvtColor(imgOriginal, cv2.COLOR_BGR2GRAY)
