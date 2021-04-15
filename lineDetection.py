@@ -46,7 +46,7 @@ def get_line_limits_x(lines, minX, minY, maxX, maxY):
             if (l[0] >= rightMostX):
                 rightMostX = l[0]
                 rightMostY = l[1]
-    return (leftMostX, leftMostY, rightMostX, rightMostY)
+    return ((leftMostX, leftMostY), (rightMostX, rightMostY))
 
 # Get bigger between two numbers
 def get_bigger(n1, n2):
@@ -77,32 +77,33 @@ def line_shadow_plane():
             cv2.line(cdst, (l[0], l[1]), (l[2], l[3]), (0,255,0), 5, cv2.LINE_AA)
 
     # Get points #1 and #2
-    (point1X, point1Y, point2X, point2Y) = get_line_limits_x(lines, minX, minY, maxX, int(round(maxY / 1.2)))
+    (point1, point2) = get_line_limits_x(lines, minX, minY, maxX, int(round(maxY / 1.2)))
     # Get points #3 and #4
-    (point3X, point3Y, point4X, point4Y) = get_line_limits_x(lines, minX, get_bigger(point1Y, point2Y), get_smaller(point1X, point2X), int(round(maxY / 1.05)))
+    (point3, point4) = get_line_limits_x(lines, minX, get_bigger(point1[1], point2[1]), get_smaller(point1[0], point2[0]), int(round(maxY / 1.05)))
     # Get points #5 and #6
-    (point5X, point5Y, point6X, point6Y) = get_line_limits_x(lines, get_bigger(point1X, point2X), get_bigger(point1Y, point2Y), maxX, maxY)
+    (point5, point6) = get_line_limits_x(lines, get_bigger(point1[0], point2[0]), get_bigger(point1[1], point2[1]), maxX, maxY)
     # Get points #7 and #8
-    (point7X, point7Y, point8X, point8Y) = get_line_limits_x(lines, minX, minY, maxX, 1300)
+    (point7, point8) = get_line_limits_x(lines, minX, minY, maxX, 1300)
     # Get points #9 and #10
-    (point9X, point9Y, point10X, point10Y) = get_line_limits_x(lines, get_bigger(point1X, point2X), get_bigger(point5Y, point6Y), maxX, maxY)
+    (point9, point10) = get_line_limits_x(lines, get_bigger(point1[0], point2[0]), get_bigger(point5[1], point6[1]), maxX, maxY)
     # Get points #11 and #12
-    (point11X, point11Y, point12X, point12Y) = get_line_limits_x(lines, minX, 1900, get_smaller(point1X, point2X), maxY)
+    (point11, point12) = get_line_limits_x(lines, minX, 1900, get_smaller(point1[0], point2[0]), maxY)
 
     # Draw important vertices
     matrix = "matrix.npz"
-    #draw_vertex(cdst, (point1X, point1Y), get_3D_coordinates((point1X, point1Y), matrix, (0, 0, 1, 0)))
-    #draw_vertex(cdst, (point2X, point2Y), get_3D_coordinates((point2X, point2Y), matrix, (0, 0, 1, 0)))
-    draw_vertex(cdst, (point3X, point3Y), get_3D_coordinates((point3X, point3Y), matrix, (0, 0, 1, 0)))
-    draw_vertex(cdst, (point4X, point4Y), get_3D_coordinates((point4X, point4Y), matrix, (0, 0, 1, 0)))
-    draw_vertex(cdst, (point5X, point5Y), get_3D_coordinates((point5X, point5Y), matrix, (0, 0, 1, 0)))
-    draw_vertex(cdst, (point6X, point6Y), get_3D_coordinates((point6X, point6Y), matrix, (0, 0, 1, 0)))
-    #draw_vertex(cdst, (point7X, point7Y), get_3D_coordinates((point7X, point7Y), matrix, (0, 0, 1, 0)))
-    #draw_vertex(cdst, (point8X, point8Y), get_3D_coordinates((point8X, point8Y), matrix, (0, 0, 1, 0)))
-    draw_vertex(cdst, (point9X, point9Y), get_3D_coordinates((point9X, point9Y), matrix, (0, 0, 1, 0)))
-    draw_vertex(cdst, (point10X, point10Y), get_3D_coordinates((point10X, point10Y), matrix, (0, 0, 1, 0)))
-    draw_vertex(cdst, (point11X, point11Y), get_3D_coordinates((point11X, point11Y), matrix, (0, 0, 1, 0)))
-    draw_vertex(cdst, (point12X, point12Y), get_3D_coordinates((point12X, point12Y), matrix, (0, 0, 1, 0)))
+    plane = (0, 1, 0, 0)
+    draw_vertex(cdst, point1, get_3D_coordinates(point1, matrix, plane))
+    draw_vertex(cdst, point2, get_3D_coordinates(point2, matrix, plane))
+    draw_vertex(cdst, point3, get_3D_coordinates(point3, matrix, plane))
+    draw_vertex(cdst, point4, get_3D_coordinates(point4, matrix, plane))
+    draw_vertex(cdst, point5, get_3D_coordinates(point5, matrix, plane))
+    draw_vertex(cdst, point6, get_3D_coordinates(point6, matrix, plane))
+    draw_vertex(cdst, point7, get_3D_coordinates(point7, matrix, plane))
+    draw_vertex(cdst, point8, get_3D_coordinates(point8, matrix, plane))
+    draw_vertex(cdst, point9, get_3D_coordinates(point9, matrix, plane))
+    draw_vertex(cdst, point10, get_3D_coordinates(point10, matrix, plane))
+    draw_vertex(cdst, point11, get_3D_coordinates(point11, matrix, plane))
+    draw_vertex(cdst, point12, get_3D_coordinates(point12, matrix, plane))
 
 # Get 3D coordinates from a 2D vertex, a matrix and a plane in which the vertex is
 def get_3D_coordinates(vertex, matrix, plane):
