@@ -12,13 +12,13 @@ def show_image(title, image, scale_percent):
 # Draw vertex
 def draw_vertex(image, place2D, place3D):
     cv2.circle(image, place2D, 30, (255,0,0), 20, cv2.LINE_AA)
-    x = place2D[0] + 100
-    y = place2D[1]
+    x = place2D[0] + 50
+    y = place2D[1] - 50
     draw_coordinates(image, (x,y), place3D)
 
 # Draw coordinates
 def draw_coordinates(image, place, coordinates):
-    cv2.putText(image, str(coordinates), place, cv2.FONT_HERSHEY_SIMPLEX, 3, (255,255,0), 3)
+    cv2.putText(image, str(coordinates), place, cv2.FONT_HERSHEY_SIMPLEX, 2, (255,255,0), 3)
 
 # Get line limits
 def get_line_limits_x(lines, minX, minY, maxX, maxY):
