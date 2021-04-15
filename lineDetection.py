@@ -3,21 +3,21 @@ import numpy as np
 import math
 
 # Auxiliary functions ------------------------------------------------------------------------------------------------------
+
 # Print image
 def show_image(title, image, scale_percent):
     imgResized = cv2.resize(image, (int(image.shape[1] * scale_percent / 100), int(image.shape[0] * scale_percent / 100)))
     cv2.imshow(title, imgResized)
 
-# Draw circle
-def draw_vertex(image, place, plane):
-    cv2.circle(image, place, 30, (255,0,0), 20, cv2.LINE_AA)
-    x = place[0] + 100
-    y = place[1]
-    coordinates = get_3D_coordinates(place, "matrix.npz", plane)
-    draw_coordinates(image, (x,y), coordinates)
+# Draw vertex
+def draw_vertex(image, place2D, place3D):
+    cv2.circle(image, place2D, 30, (255,0,0), 20, cv2.LINE_AA)
+    x = place2D[0] + 100
+    y = place2D[1]
+    draw_coordinates(image, (x,y), place3D)
 
+# Draw coordinates
 def draw_coordinates(image, place, coordinates):
-    print(coordinates)
     cv2.putText(image, str(coordinates), place, cv2.FONT_HERSHEY_SIMPLEX, 3, (255,255,0), 3)
 
 # Get line limits
@@ -46,18 +46,21 @@ def get_line_limits_x(lines, minX, minY, maxX, maxY):
             if (l[0] >= rightMostX):
                 rightMostX = l[0]
                 rightMostY = l[1]
-    return (leftMostX, leftMostY, rightMostX, rightMostY)
+    return ((leftMostX, leftMostY), (rightMostX, rightMostY))
 
+# Get bigger between two numbers
 def get_bigger(n1, n2):
     if (n1 > n2):
         return n1
     else: return n2
 
+# Get smaller between two numbers
 def get_smaller(n1, n2):
     if (n1 < n2):
         return n1
     else: return n2
 
+# Handle shadow lines and vertices
 def line_shadow_plane():
     # Draw the lines
     maxY = 2000
@@ -74,33 +77,41 @@ def line_shadow_plane():
             cv2.line(cdst, (l[0], l[1]), (l[2], l[3]), (0,255,0), 5, cv2.LINE_AA)
 
     # Get points #1 and #2
-    (point1X, point1Y, point2X, point2Y) = get_line_limits_x(lines, minX, minY, maxX, int(round(maxY / 1.2)))
+    (point1, point2) = get_line_limits_x(lines, minX, minY, maxX, int(round(maxY / 1.2)))
     # Get points #3 and #4
-    (point3X, point3Y, point4X, point4Y) = get_line_limits_x(lines, minX, get_bigger(point1Y, point2Y), get_smaller(point1X, point2X), int(round(maxY / 1.05)))
+    (point3, point4) = get_line_limits_x(lines, minX, get_bigger(point1[1], point2[1]), get_smaller(point1[0], point2[0]), int(round(maxY / 1.05)))
     # Get points #5 and #6
-    (point5X, point5Y, point6X, point6Y) = get_line_limits_x(lines, get_bigger(point1X, point2X), get_bigger(point1Y, point2Y), maxX, maxY)
+    (point5, point6) = get_line_limits_x(lines, get_bigger(point1[0], point2[0]), get_bigger(point1[1], point2[1]), maxX, maxY)
     # Get points #7 and #8
-    (point7X, point7Y, point8X, point8Y) = get_line_limits_x(lines, minX, minY, maxX, 1300)
+    (point7, point8) = get_line_limits_x(lines, minX, minY, maxX, 1300)
     # Get points #9 and #10
-    (point9X, point9Y, point10X, point10Y) = get_line_limits_x(lines, get_bigger(point1X, point2X), get_bigger(point5Y, point6Y), maxX, maxY)
+    (point9, point10) = get_line_limits_x(lines, get_bigger(point1[0], point2[0]), get_bigger(point5[1], point6[1]), maxX, maxY)
     # Get points #11 and #12
-    (point11X, point11Y, point12X, point12Y) = get_line_limits_x(lines, minX, 1900, get_smaller(point1X, point2X), maxY)
+    (point11, point12) = get_line_limits_x(lines, minX, 1900, get_smaller(point1[0], point2[0]), maxY)
 
     # Draw important vertices
-    draw_vertex(cdst, (point1X, point1Y), (0, 1, 0, 0))
-    #draw_vertex(cdst, (point2X, point2Y), (0, 1, 0, 0))
-    #draw_vertex(cdst, (point3X, point3Y), (0, 1, 0, 0))
-    draw_vertex(cdst, (point4X, point4Y), (0, 1, 0, 0))
-    draw_vertex(cdst, (point5X, point5Y), (0, 1, 0, 0))
-    #draw_vertex(cdst, (point6X, point6Y), (0, 1, 0, 0))
-    #draw_vertex(cdst, (point7X, point7Y), (0, 1, 0, 0))
-    #draw_vertex(cdst, (point8X, point8Y), (0, 1, 0, 0))
-    #draw_vertex(cdst, (point9X, point9Y), (0, 1, 0, 0))
-    #draw_vertex(cdst, (point10X, point10Y), (0, 1, 0, 0))
-    #draw_vertex(cdst, (point11X, point11Y), (0, 1, 0, 0))
-    #draw_vertex(cdst, (point12X, point12Y), (0, 1, 0, 0))
+    matrix = "matrix.npz"
+    plane = (0, 1, 0, 0)
+    draw_vertex(cdst, point1, get_3D_coordinates(point1, matrix, plane))
+    draw_vertex(cdst, point2, get_3D_coordinates(point2, matrix, plane))
+    draw_vertex(cdst, point3, get_3D_coordinates(point3, matrix, plane))
+    draw_vertex(cdst, point4, get_3D_coordinates(point4, matrix, plane))
+    draw_vertex(cdst, point5, get_3D_coordinates(point5, matrix, plane))
+    draw_vertex(cdst, point6, get_3D_coordinates(point6, matrix, plane))
+    draw_vertex(cdst, point7, get_3D_coordinates(point7, matrix, plane))
+    draw_vertex(cdst, point8, get_3D_coordinates(point8, matrix, plane))
+    draw_vertex(cdst, point9, get_3D_coordinates(point9, matrix, plane))
+    draw_vertex(cdst, point10, get_3D_coordinates(point10, matrix, plane))
+    draw_vertex(cdst, point11, get_3D_coordinates(point11, matrix, plane))
+    draw_vertex(cdst, point12, get_3D_coordinates(point12, matrix, plane))
 
+# Get 3D coordinates from a 2D vertex, a matrix and a plane in which the vertex is
 def get_3D_coordinates(vertex, matrix, plane):
+    #with the points (i,J)
+    #(P[3][1]*i-P[1][1])*x+(P[3][2]*i-P[1][2])*y+(P[3][3]*i-P[1][3])*z = P[1][4]-P[3][4]*i
+    #(P[3][1]*i-P[2][1])*x+(P[2][2]*i-P[1][2])*y+(P[3][3]*i-P[2][3])*z = P[2][4]-P[3][4]*j
+    #A*x+B*y+C*z=D
+
     npzfile = np.load(matrix)
     P = npzfile['arr_0']
 
@@ -136,19 +147,12 @@ def get_3D_coordinates(vertex, matrix, plane):
     x = np.linalg.solve(operands, results)
     print(x)
     
-    # x = -((B*(P[2][2]*i - P[1][2]) - C*(i*P[1][1] - P[0][1]))*(-C*(P[2][3]*i - P[0][3]) - D*(P[2][2]*i - P[0][2])) - (B*(P[2][2]*i - P[0][2]) - C*(P[2][1]*i - P[0][1]))*(-C*(P[2][3]*j - P[1][3]) - D*(P[2][2]*i - P[1][2])))/((A*(P[2][2]*i - P[0][2]) - C*(P[2][0]*i - P[0][0]))*(B*(P[2][2]*i - P[1][2]) - C*(i*P[1][1] - P[0][1])) - (A*(P[2][2]*i - P[1][2]) - C*(P[2][0]*i - P[1][0]))*(B*(P[2][2]*i - P[0][2]) - C*(P[2][1]*i - P[0][1])))
-    # y = -(P[2][0]*C*P[0][3]*i - P[2][0]*C*P[2][3]*i*i + P[2][0]*C*P[2][3]*i*j - P[2][0]*C*i*P[1][3] + P[2][0]*D*P[0][2]*i - P[2][0]*D*i*P[1][2] - A*P[2][2]*P[0][3]*i + A*P[2][2]*P[2][3]*i*i - A*P[2][2]*P[2][3]*i*j + A*P[2][2]*i*P[1][3] + A*P[0][2]*P[2][3]*j - A*P[0][2]*P[1][3] + A*P[0][3]*P[1][2] - A*P[2][3]*i*P[1][2] - P[0][0]*C*P[2][3]*j + P[0][0]*C*P[1][3] - P[0][0]*D*P[2][2]*i + P[0][0]*D*P[1][2] - C*P[0][3]*P[1][0] + C*P[2][3]*i*P[1][0] + D*P[2][2]*i*P[1][0] - D*P[0][2]*P[1][0])/(-P[2][0]*B*P[0][2]*i + P[2][0]*B*i*P[1][2] - P[2][0]*P[2][1]*C*i*i + P[2][0]*C*i*i*P[1][1] + A*P[2][1]*P[2][2]*i*i - A*P[2][1]*i*P[1][2] - A*P[0][1]*P[0][2] + A*P[0][1]*P[1][2] - A*P[2][2]*i*i*P[1][1] + A*P[0][2]*i*P[1][1] + P[0][0]*B*P[2][2]*i - P[0][0]*B*P[1][2] + P[0][0]*C*P[0][1] - P[0][0]*C*i*P[1][1] - B*P[2][2]*i*P[1][0] + B*P[0][2]*P[1][0] + P[2][1]*C*i*P[1][0] - C*P[0][1]*P[1][0])
-    # z = -(-P[2][0]*B*P[0][3]*i + P[2][0]*B*P[2][3]*i*i - P[2][0]*B*P[2][3]*i*j + P[2][0]*B*i*P[1][3] + P[2][0]*P[2][1]*D*i*i - P[2][0]*D*i*i*P[1][1] + A*P[2][1]*P[2][3]*i*j - A*P[2][1]*i*P[1][3] - A*P[0][1]*P[0][3] + A*P[0][1]*P[2][3]*i - A*P[0][1]*P[2][3]*j + A*P[0][1]*P[1][3] + A*P[0][3]*i*P[1][1] - A*P[2][3]*i*i*P[1][1] + P[0][0]*B*P[2][3]*j - P[0][0]*B*P[1][3] - P[0][0]*P[0][1]*D + P[0][0]*D*i*P[1][1] + B*P[0][3]*P[1][0] - B*P[2][3]*i*P[1][0] - P[2][1]*D*i*P[1][0] + P[0][1]*D*P[1][0])/(-P[2][0]*B*P[0][2]*i + P[2][0]*B*i*P[1][2] - P[2][0]*P[2][1]*C*i*i + P[2][0]*C*i*i*P[1][1] + A*P[2][1]*P[2][2]*i*i - A*P[2][1]*i*P[1][2] - A*P[0][1]*P[0][2] + A*P[0][1]*P[1][2] - A*P[2][2]*i*i*P[1][1] + A*P[0][2]*i*P[1][1] + P[0][0]*B*P[2][2]*i - P[0][0]*B*P[1][2] + P[0][0]*C*P[0][1] - P[0][0]*C*i*P[1][1] - B*P[2][2]*i*P[1][0] + B*P[0][2]*P[1][0] + P[2][1]*C*i*P[1][0] - C*P[0][1]*P[1][0])
-    
     decimal = 4
     return (round(x[0], decimal), round(x[1], decimal), round(x[2], decimal))
-    #with the points (i,J)
-    #(P[3][1]*i-P[1][1])*x+(P[3][2]*i-P[1][2])*y+(P[3][3]*i-P[1][3])*z = P[1][4]-P[3][4]*i
-    #(P[3][1]*i-P[2][1])*x+(P[2][2]*i-P[1][2])*y+(P[3][3]*i-P[2][3])*z = P[2][4]-P[3][4]*j
-    #A*x+B*y+C*z=D
     
 
 # Main -----------------------------------------------------------------------------------------------------------------------
+
 # Opening an image
 imgOriginal = cv2.imread('./assets/images/i/IMG_0922.JPG')
 imgGrey = cv2.cvtColor(imgOriginal, cv2.COLOR_BGR2GRAY)
