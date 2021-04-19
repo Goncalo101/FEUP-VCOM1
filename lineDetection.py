@@ -245,12 +245,23 @@ imgOriginal = cv2.imread('./assets/images/i/IMG_0922.JPG')
 # Convert to grayscale
 imgGrey = cv2.cvtColor(imgOriginal, cv2.COLOR_BGR2GRAY)
 
-# Apply Bilateral Filter
+# Apply Bilateral Filter to remove noise
+# cv2.bilateralFilter(image, d, sigmaColor, sigmaSpace)
+# d - Diameter of each pixel neighborhood used during filtering
+# sigmaColor - Filter sigma in the color space: represents the amount of colors within the pixel neighborhood that will be mixed together, resulting in larger areas of semi-equal color
+# sigmaSpace - Filter sigma in the coordinate space: larger values mean that farther pixels will influence each other as long as their colors are close enough
 imgBilateral = cv2.bilateralFilter(imgGrey, 11, 75, 75)
-# Apply Canny Filter
+# Apply Canny Filter to detect edges
+# cv2.Canny(image, threshold1, threshold2, edges, apertureSize)
+# threshold1 - first threshold for the hysteresis procedure
+# threshold1 - second threshold for the hysteresis procedure
+# apertureSize - aperture size for the Sobel operator
 imgWithCanny = cv2.Canny(imgBilateral, 60, 60, None, 3)
+cv2.Canny(image,)
 
+# Fill the lines using Dilation and Erosion
 # Dilate
+# kernel - matrix 5x5 filled with 1s
 kernel = np.ones((5, 5), np.uint8)
 imgDilate = cv2.dilate(imgWithCanny, kernel, iterations=7)
 # Erode
@@ -258,7 +269,7 @@ imgErode = cv2.erode(imgDilate, kernel, iterations=7)
 
 # Copy edges to the images that will display the results in BGR
 cdst = imgOriginal.copy()
-# Probabilistic Hough Line Transform
+# Probabilistic Hough Line Transform - lines in green color
 lines = cv2.HoughLinesP(imgErode, 1, np.pi / 180, 50, minLineLength=85, maxLineGap=50)
 # Shadow
 line_shadow_plane(lines)
