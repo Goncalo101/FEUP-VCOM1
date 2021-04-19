@@ -6,27 +6,64 @@ import math
 
 # Print image
 def show_image(title, image, scale_percent):
+    """
+    Opens a window with the image
+    @param
+    title - Title of the window
+    image - Image to be printed
+    scale_percent - Resize scale
+    """
+    # Resize image
     imgResized = cv2.resize(image, (int(image.shape[1] * scale_percent / 100), int(image.shape[0] * scale_percent / 100)))
+    # Print image
     cv2.imshow(title, imgResized)
 
 # Draw vertex
 def draw_vertex(image, place2D, place3D):
+    """
+    Draws a blue circle and 3D coordinates text, representing a vertex, in given 2D coordinates of the image
+    @param
+    image - Image where to print vertex
+    place2D - Place on the image where to print coordinates in (x, y) format
+    place3D - 3D coordinates to be printed, corresponding to the real world coordinates of the vertex
+    """
+    # Draw circle
     cv2.circle(image, place2D, 30, (255,0,0), 20, cv2.LINE_AA)
     x = place2D[0] + 50
     y = place2D[1] - 50
+    # Draw coordinates
     draw_coordinates(image, (x,y), place3D)
 
 # Draw coordinates
 def draw_coordinates(image, place, coordinates):
+    """
+    Draws 3D coordinates text, representing a vertex, in given 2D coordinates of the image
+    @param
+    image - Image where to print coordinates
+    place - Place on the image where to print coordinates in (x, y) format
+    coordinates - 3D coordinates to be printed, corresponding to the real world coordinates of the vertex
+    """
+    # Draw coordinates text
     cv2.putText(image, str(coordinates), place, cv2.FONT_HERSHEY_SIMPLEX, 2, (255,255,0), 3)
 
 # Get line limits
 def get_line_limits_x(lines, minX, minY, maxX, maxY):
+    """
+    Calculates line left and right limits vertices, for a specified range
+    @param
+    lines - Previously defined lines in the image
+    minX - Minimum value in x-axis
+    minY - Minimum value in y-axis
+    maxX - Maximum value in x-axis
+    maxY - Maximum value in y-axis
+    @return Returns in a pair the most left and the most right vertices of the line, respectively
+    """
     leftMostX = maxX
     leftMostY = maxY
     rightMostX = minX
     rightMostY = minY
     if lines is not None:
+        # For each line in range
         for i in range(0, len(lines)):
             l = lines[i][0]
             # Specify the area of interest
@@ -48,25 +85,45 @@ def get_line_limits_x(lines, minX, minY, maxX, maxY):
                 rightMostY = l[1]
     return ((leftMostX, leftMostY), (rightMostX, rightMostY))
 
-# Get bigger between two numbers
+# Get higher between two numbers
 def get_bigger(n1, n2):
+    """
+    Calculates the highest number between two given numbers
+    @param
+    n1 - Number 1
+    n2 - Number 2
+    @return Returns n1 if it is higher than n2, n2 otherwise 
+    """
     if (n1 > n2):
         return n1
     else: return n2
 
 # Get smaller between two numbers
 def get_smaller(n1, n2):
+    """
+    Calculates the smallest number between two given numbers
+    @param
+    n1 - Number 1
+    n2 - Number 2
+    @return Returns n1 if it is smaller than n2, n2 otherwise 
+    """
     if (n1 < n2):
         return n1
     else: return n2
 
 # Handle shadow lines and vertices
-def line_shadow_plane():
-    # Draw the lines
+def line_shadow_plane(lines):
+    """
+    Draws the previously defined lines in the image and their limits vertices
+    @param
+    lines - Lines to be drawn
+    """
     maxY = 2000
     minY = 900
     maxX = imgOriginal.shape[1]
     minX = 0
+
+    # Draw the lines
     if lines is not None:
         for i in range(0, len(lines)):
             l = lines[i][0]
@@ -124,11 +181,19 @@ def line_shadow_plane():
 
 # Get 3D coordinates from a 2D vertex, a matrix and a plane in which the vertex is
 def get_3D_coordinates(vertex, matrix, plane):
-    #with the points (i,J)
-    #(P[3][1]*i-P[1][1])*x+(P[3][2]*i-P[1][2])*y+(P[3][3]*i-P[1][3])*z = P[1][4]-P[3][4]*i
-    #(P[3][1]*i-P[2][1])*x+(P[2][2]*i-P[1][2])*y+(P[3][3]*i-P[2][3])*z = P[2][4]-P[3][4]*j
-    #A*x+B*y+C*z=D
+    """
+    Get 3D real world coordinates from a 2D vertex, a matrix and a plane in which the vertex is
+    @param
+    vertex - 2d coordinates of a vertex in the image in format (x, y)
+    matrix - Perspective projection matrix file name
+    plane - Plane from which the vertex belongs in 3D coordinates
+    """
+    # With the points (i,J)
+    # (P[3][1]*i-P[1][1])*x+(P[3][2]*i-P[1][2])*y+(P[3][3]*i-P[1][3])*z = P[1][4]-P[3][4]*i
+    # (P[3][1]*i-P[2][1])*x+(P[2][2]*i-P[1][2])*y+(P[3][3]*i-P[2][3])*z = P[2][4]-P[3][4]*j
+    # A*x+B*y+C*z=D
 
+    # Load previously exported perspective projection matrix file
     npzfile = np.load(matrix)
     P = npzfile['arr_0']
 
@@ -147,23 +212,28 @@ def get_3D_coordinates(vertex, matrix, plane):
     C33 = P[2][2]
     C34 = P[2][3]
 
+    # Plane coefficients
     A = plane[0]
     B = plane[1]
     C = plane[2]
     D = plane[3]
+
+    # Vertex 2D coordinates
     i = vertex[0]
     j = vertex[1]
 
+    # Solve system
     operands = np.array([
         [(C31*i-C11), (C32*i-C12), (C33*i-C13)], 
         [(C31*j-C21), (C32*j-C22), (C33*j-C23)],
         [A, B, C]])
 
     results = np.array([(C14-C34*i), (C24-C34*j), D])
-
     x = np.linalg.solve(operands, results)
+    # Print results on the console
     print(x)
     
+    # Return coordinates with a rounded value
     decimal = 4
     return (round(x[0], decimal), round(x[1], decimal), round(x[2], decimal))
     
@@ -172,50 +242,40 @@ def get_3D_coordinates(vertex, matrix, plane):
 
 # Opening an image
 imgOriginal = cv2.imread('./assets/images/i/IMG_0922.JPG')
+# Convert to grayscale
 imgGrey = cv2.cvtColor(imgOriginal, cv2.COLOR_BGR2GRAY)
 
-# Bilateral Filter
+# Apply Bilateral Filter
 imgBilateral = cv2.bilateralFilter(imgGrey, 11, 75, 75)
-
-# Using a Canny Filter
+# Apply Canny Filter
 imgWithCanny = cv2.Canny(imgBilateral, 60, 60, None, 3)
 
 # Dilate
 kernel = np.ones((5, 5), np.uint8)
 imgDilate = cv2.dilate(imgWithCanny, kernel, iterations=7)
-
 # Erode
 imgErode = cv2.erode(imgDilate, kernel, iterations=7)
 
 # Copy edges to the images that will display the results in BGR
 cdst = imgOriginal.copy()
-
 # Probabilistic Hough Line Transform
 lines = cv2.HoughLinesP(imgErode, 1, np.pi / 180, 50, minLineLength=85, maxLineGap=50)
-
 # Shadow
-line_shadow_plane()
+line_shadow_plane(lines)
 
 # Print Original Image
 scale_percent = 20
-scale_percent2 = 10
-#show_image('Img', imgOriginal, scale_percent2)
-
+#show_image('Img', imgOriginal, scale_percent)
 # Print Grey Image
-#show_image('Img Grey', imgGrey, scale_percent2)
-
+#show_image('Img Grey', imgGrey, scale_percent)
 # Print Bilateral Image
 #show_image('Img Bilateral', imgBilateral, scale_percent)
-
 # Print Canny Image
 #show_image('Img Canny', imgWithCanny, scale_percent)
-
 # Print Dilate Image
 #show_image('Img Dilate', imgDilate, scale_percent)
-
 # Print Erode Image
 #show_image('Img Erode', imgErode, scale_percent)
-
 # Print Final Image
 show_image('Detected Lines (in green) - Standard Hough Line Transform', cdst, scale_percent)
 cv2.waitKey(0)
