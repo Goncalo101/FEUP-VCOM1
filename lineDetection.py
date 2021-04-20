@@ -19,18 +19,23 @@ def show_image(title, image, scale_percent):
     cv2.imshow(title, imgResized)
 
 # Draw vertex
-def draw_vertex(image, place2D, place3D):
+def draw_vertex(image, place2D, place3D, showLeft = False):
     """
     Draws a blue circle and 3D coordinates text, representing a vertex, in given 2D coordinates of the image
     @param
     image - Image where to print vertex
     place2D - Place on the image where to print coordinates in (x, y) format
     place3D - 3D coordinates to be printed, corresponding to the real world coordinates of the vertex
+    showLeft - Whether to print the 3D coordinates on the left or on the right
     """
     # Draw circle
     cv2.circle(image, place2D, 30, (255,0,0), 20, cv2.LINE_AA)
-    x = place2D[0] + 50
-    y = place2D[1] - 50
+    if (showLeft):
+        x = place2D[0] - 900
+        y = place2D[1] - 50
+    else:
+        x = place2D[0] + 50
+        y = place2D[1] - 50
     # Draw coordinates
     draw_coordinates(image, (x,y), place3D)
 
@@ -155,9 +160,9 @@ def line_shadow_plane(lines):
     draw_vertex(cdst, point2, point2Coordinates)
 
     point9Coordinates = get_3D_coordinates(point9, matrix, plane)
-    draw_vertex(cdst, point9, point9Coordinates)
+    draw_vertex(cdst, point9, point9Coordinates, True)
     point10Coordinates = get_3D_coordinates(point10, matrix, plane)
-    draw_vertex(cdst, point10, point10Coordinates)
+    draw_vertex(cdst, point10, point10Coordinates, True)
 
     point11Coordinates = get_3D_coordinates(point11, matrix, plane)
     draw_vertex(cdst, point11, point11Coordinates)
@@ -170,9 +175,9 @@ def line_shadow_plane(lines):
     draw_vertex(cdst, point4, point4Coordinates)
 
     point5Coordinates = get_3D_coordinates(point5, matrix, (0,0,1,point9Coordinates[2]))
-    draw_vertex(cdst, point5, point5Coordinates)
+    draw_vertex(cdst, point5, point5Coordinates, True)
     point6Coordinates = get_3D_coordinates(point6, matrix, (0,0,1,point10Coordinates[2]))
-    draw_vertex(cdst, point6, point6Coordinates)
+    draw_vertex(cdst, point6, point6Coordinates, True)
 
     point7Coordinates = get_3D_coordinates(point7, matrix, (0,0,1,point1Coordinates[2]))
     draw_vertex(cdst, point7, point7Coordinates)
@@ -261,7 +266,6 @@ imgBilateral = cv2.bilateralFilter(imgGrey, 11, 75, 75)
 # threshold1 - second threshold for the hysteresis procedure
 # apertureSize - aperture size for the Sobel operator
 imgWithCanny = cv2.Canny(imgBilateral, 60, 60, None, 3)
-cv2.Canny(image,)
 
 
 # Fill the lines using Dilation and Erosion
