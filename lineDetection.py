@@ -199,7 +199,7 @@ def get_3D_coordinates(vertex, matrix, plane):
     """
     # With the points (i,J)
     # (P[3][1]*i-P[1][1])*x+(P[3][2]*i-P[1][2])*y+(P[3][3]*i-P[1][3])*z = P[1][4]-P[3][4]*i
-    # (P[3][1]*i-P[2][1])*x+(P[2][2]*i-P[1][2])*y+(P[3][3]*i-P[2][3])*z = P[2][4]-P[3][4]*j
+    # (P[3][1]*j-P[2][1])*x+(P[3][2]*j-P[2][2])*y+(P[3][3]*j-P[2][3])*z = P[2][4]-P[3][4]*j
     # A*x+B*y+C*z=D
 
     # Load previously exported perspective projection matrix file
