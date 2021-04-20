@@ -248,7 +248,7 @@ def get_3D_coordinates(vertex, matrix, plane):
     return (round(x[0], decimal), round(x[1], decimal), round(x[2], decimal))
     
 def plotGraph(points):
-     """
+    """
     Plot a graph to show high Z variation along X 
     @param
     points - 3d matrix with the coordinates of the points to be ploted
