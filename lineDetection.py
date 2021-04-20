@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import math
+import matplotlib.pyplot as plt
 
 # Auxiliary functions ------------------------------------------------------------------------------------------------------
 
@@ -132,7 +133,6 @@ def line_shadow_plane(lines):
                 continue
             # Draw line
             cv2.line(cdst, (l[0], l[1]), (l[2], l[3]), (0,255,0), 5, cv2.LINE_AA)
-
     # Get points #1 and #2
     (point1, point2) = get_line_limits_x(lines, minX, minY, maxX, int(round(maxY / 1.2)))
     # Get points #3 and #4
@@ -179,6 +179,8 @@ def line_shadow_plane(lines):
     point8Coordinates = get_3D_coordinates(point8, matrix, (0,0,1,point2Coordinates[2]))
     draw_vertex(cdst, point8, point8Coordinates)
 
+    #points of interest to return to plot graphic
+    return np.asarray([list(point1Coordinates),list(point2Coordinates),list(point3Coordinates),list(point4Coordinates),list(point5Coordinates),list(point6Coordinates)])
 # Get 3D coordinates from a 2D vertex, a matrix and a plane in which the vertex is
 def get_3D_coordinates(vertex, matrix, plane):
     """
@@ -235,8 +237,20 @@ def get_3D_coordinates(vertex, matrix, plane):
     
     # Return coordinates with a rounded value
     decimal = 4
+    
     return (round(x[0], decimal), round(x[1], decimal), round(x[2], decimal))
     
+def plotGraph(points):
+    # Sort Points by X in ascending order
+    sorted = points[points[:,0].argsort()]
+    # Select only X coordenates from the matrix 
+    x = sorted[...,0]
+    # Select only X coordenates from the matrix 
+    z = sorted[...,2]
+    # Ploting graph 
+    plt.figure()
+    plt.plot(x,z)
+    plt.show()
 
 # Main -----------------------------------------------------------------------------------------------------------------------
 
@@ -261,7 +275,6 @@ imgBilateral = cv2.bilateralFilter(imgGrey, 11, 75, 75)
 # threshold1 - second threshold for the hysteresis procedure
 # apertureSize - aperture size for the Sobel operator
 imgWithCanny = cv2.Canny(imgBilateral, 60, 60, None, 3)
-cv2.Canny(image,)
 
 
 # Fill the lines using Dilation and Erosion
@@ -286,8 +299,10 @@ cdst = imgOriginal.copy()
 # maxLineGap - Maximum allowed gap between line segments to treat them as single line
 lines = cv2.HoughLinesP(imgErode, 1, np.pi / 180, 50, minLineLength=85, maxLineGap=50)
 # Shadow
-line_shadow_plane(lines)
+points = line_shadow_plane(lines)
 
+#Plot High Graph
+plotGraph(points)
 
 # Print Original Image
 scale_percent = 20
@@ -304,4 +319,5 @@ scale_percent = 20
 #show_image('Img Erode', imgErode, scale_percent)
 # Print Final Image
 show_image('Detected Lines (in green) - Standard Hough Line Transform', cdst, scale_percent)
+#plot Z graph 
 cv2.waitKey(0)
