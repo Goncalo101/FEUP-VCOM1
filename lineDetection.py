@@ -20,18 +20,23 @@ def show_image(title, image, scale_percent):
     cv2.imshow(title, imgResized)
 
 # Draw vertex
-def draw_vertex(image, place2D, place3D):
+def draw_vertex(image, place2D, place3D, showLeft = False):
     """
     Draws a blue circle and 3D coordinates text, representing a vertex, in given 2D coordinates of the image
     @param
     image - Image where to print vertex
     place2D - Place on the image where to print coordinates in (x, y) format
     place3D - 3D coordinates to be printed, corresponding to the real world coordinates of the vertex
+    showLeft - Whether to print the 3D coordinates on the left or on the right
     """
     # Draw circle
     cv2.circle(image, place2D, 30, (255,0,0), 20, cv2.LINE_AA)
-    x = place2D[0] + 50
-    y = place2D[1] - 50
+    if (showLeft):
+        x = place2D[0] - 900
+        y = place2D[1] - 50
+    else:
+        x = place2D[0] + 50
+        y = place2D[1] - 50
     # Draw coordinates
     draw_coordinates(image, (x,y), place3D)
 
@@ -118,6 +123,7 @@ def line_shadow_plane(lines):
     Draws the previously defined lines in the image and their limits vertices
     @param
     lines - Lines to be drawn
+    @return Return points of interest to draw Z graph, return only the points form the line on top 
     """
     maxY = 2000
     minY = 900
@@ -155,9 +161,9 @@ def line_shadow_plane(lines):
     draw_vertex(cdst, point2, point2Coordinates)
 
     point9Coordinates = get_3D_coordinates(point9, matrix, plane)
-    draw_vertex(cdst, point9, point9Coordinates)
+    draw_vertex(cdst, point9, point9Coordinates, True)
     point10Coordinates = get_3D_coordinates(point10, matrix, plane)
-    draw_vertex(cdst, point10, point10Coordinates)
+    draw_vertex(cdst, point10, point10Coordinates, True)
 
     point11Coordinates = get_3D_coordinates(point11, matrix, plane)
     draw_vertex(cdst, point11, point11Coordinates)
@@ -170,17 +176,18 @@ def line_shadow_plane(lines):
     draw_vertex(cdst, point4, point4Coordinates)
 
     point5Coordinates = get_3D_coordinates(point5, matrix, (0,0,1,point9Coordinates[2]))
-    draw_vertex(cdst, point5, point5Coordinates)
+    draw_vertex(cdst, point5, point5Coordinates, True)
     point6Coordinates = get_3D_coordinates(point6, matrix, (0,0,1,point10Coordinates[2]))
-    draw_vertex(cdst, point6, point6Coordinates)
+    draw_vertex(cdst, point6, point6Coordinates, True)
 
     point7Coordinates = get_3D_coordinates(point7, matrix, (0,0,1,point1Coordinates[2]))
     draw_vertex(cdst, point7, point7Coordinates)
     point8Coordinates = get_3D_coordinates(point8, matrix, (0,0,1,point2Coordinates[2]))
     draw_vertex(cdst, point8, point8Coordinates)
 
-    #points of interest to return to plot graphic
+    # Return points of interest to draw Z graph, return only the points form the line on top 
     return np.asarray([list(point1Coordinates),list(point2Coordinates),list(point3Coordinates),list(point4Coordinates),list(point5Coordinates),list(point6Coordinates)])
+
 # Get 3D coordinates from a 2D vertex, a matrix and a plane in which the vertex is
 def get_3D_coordinates(vertex, matrix, plane):
     """
@@ -241,6 +248,11 @@ def get_3D_coordinates(vertex, matrix, plane):
     return (round(x[0], decimal), round(x[1], decimal), round(x[2], decimal))
     
 def plotGraph(points):
+     """
+    Plot a graph to show high Z variation along X 
+    @param
+    points - 3d matrix with the coordinates of the points to be ploted
+    """
     # Sort Points by X in ascending order
     sorted = points[points[:,0].argsort()]
     # Select only X coordenates from the matrix 
