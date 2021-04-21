@@ -71,19 +71,19 @@ print("total error: ", mean_error/len(objpoints))
 
 #Undisort image -------------------------------------------------------------
 
-img = cv2.imread('./assets/images/i/IMG_0922.JPG')
-h,  w = img.shape[:2]
+#img = cv2.imread('./assets/images/i/IMG_0922.JPG')
+#h,  w = img.shape[:2]
 
 # Return the new camera intrinsic matrix based on the free scaling parameter (1)
-newcameramtx, roi = cv2.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,(w,h))
+#newcameramtx, roi = cv2.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,(w,h))
 
 # Method 1 - shortest path (use the ROI to crop the result)
-dst = cv2.undistort(img, mtx, dist, None, newcameramtx)
+#dst = cv2.undistort(img, mtx, dist, None, newcameramtx)
 
 # crop the image
-x,y,w,h = roi
-dst = dst[y:y+h, x:x+w]
-cv2.imwrite('./assets/images/i/calibresult.png',dst)
+#x,y,w,h = roi
+#dst = dst[y:y+h, x:x+w]
+#cv2.imwrite('./assets/images/i/calibresult.png',dst)
 
 # Method 2 - curved path (find mapping function from distorted image to undistorted image and remap)
 # undistort
